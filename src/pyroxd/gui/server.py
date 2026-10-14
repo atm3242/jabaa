@@ -108,7 +108,12 @@ class _Handler(BaseHTTPRequestHandler):
         except ValueError:
             self.send_error(400, "bad query")
             return
-        delay = 1.0 / rate if rate > 0 else 0.0
+        # Clamp to sane ranges: a non-positive or huge rate would otherwise spin
+        # a CPU core with no delay, and a negative seed would raise deep in the
+        # RNG. This endpoint is a local demo driver, not a load generator.
+        rate = min(max(rate, 0.5), 1000.0)
+        seed = seed if seed >= 0 else 0
+        delay = 1.0 / rate
 
         self.send_response(200)
         self.send_header("Content-Type", "text/event-stream")
