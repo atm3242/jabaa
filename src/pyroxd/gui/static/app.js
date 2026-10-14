@@ -99,6 +99,8 @@ function ingest(f) {
 
   document.getElementById("s-processed").textContent = f.telemetry.processed;
   document.getElementById("s-threshold").textContent = state.threshold.toFixed(2);
+  if (f.telemetry.n_incidents != null)
+    document.getElementById("s-incidents").textContent = f.telemetry.n_incidents;
 
   // Detector bars.
   for (const [name, v] of Object.entries(f.contributions)) {

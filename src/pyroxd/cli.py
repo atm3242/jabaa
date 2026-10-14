@@ -76,8 +76,25 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--port", type=int, default=8787)
     s.set_defaults(func=cmd_serve)
 
+    e = sub.add_parser("eval", help="benchmark the engine across seeds")
+    e.add_argument("--seeds", type=int, nargs="+", default=[1, 2, 3, 4, 5])
+    e.add_argument("--json", metavar="PATH", help="also write the full report as JSON")
+    e.set_defaults(func=cmd_eval)
+
     args = parser.parse_args(argv)
     return args.func(args)
+
+
+def cmd_eval(args: argparse.Namespace) -> int:
+    import json as _json
+    from .eval.benchmark import format_report, run_benchmark
+    result = run_benchmark(seeds=tuple(args.seeds))
+    print(format_report(result))
+    if args.json:
+        with open(args.json, "w") as fh:
+            _json.dump(result, fh, indent=2)
+        print(f"\nfull report written to {args.json}")
+    return 0
 
 
 def cmd_serve(args: argparse.Namespace) -> int:

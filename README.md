@@ -38,6 +38,11 @@ service, and no telemetry**.
   bars, live entropy gauges, an explained alert stream, and a guided help
   walkthrough. Pure stdlib backend + framework-free front end. See
   [`docs/GUI.md`](docs/GUI.md).
+- **Incident correlation** that groups a burst of alerts (and its post-attack
+  tail) into one incident — **0.91 incident precision, 1.00 incident recall**.
+- **Reproducible benchmark harness** (`python -m pyroxd eval`) with pure-numpy
+  ROC-AUC, average precision, per-family recall, and incident-level metrics
+  across seeds. See [`docs/EVALUATION.md`](docs/EVALUATION.md).
 
 ## Quick start
 
@@ -51,9 +56,13 @@ PYTHONPATH=src python -m pyroxd demo
 # Launch the bespoke web console, then open http://127.0.0.1:8787
 PYTHONPATH=src python -m pyroxd serve
 
+# Benchmark the engine across seeds (ROC-AUC, per-family, incident-level):
+PYTHONPATH=src python -m pyroxd eval
+
 # Run the test suite (no pytest required):
 PYTHONPATH=src python tests/test_detectors_unit.py
 PYTHONPATH=src python tests/test_engine_e2e.py
+PYTHONPATH=src python tests/test_incidents_and_eval.py
 ```
 
 ## Repository layout
@@ -66,8 +75,13 @@ src/pyroxd/
   detect/ewma.py          EWMA / Shewhart control-chart detector
   detect/entropy.py       Sliding-window Shannon-entropy detector
   detect/ensemble.py      DetectionEngine: fusion + explanation
+  detect/incidents.py     Streaming alert -> incident correlation
+  eval/metrics.py         Pure-numpy ROC-AUC / average precision / confusion
+  eval/benchmark.py       Multi-seed benchmark + report
+  gui/server.py           Pure-stdlib web backend (SSE live stream)
+  gui/static/             Hand-built console front end (no framework)
   lab/synth.py            Self-contained labelled traffic & attack generator
-  cli.py                  `python -m pyroxd demo` live alert feed
+  cli.py                  demo / serve / eval subcommands
 tests/                    Runnable unit + end-to-end detection-quality tests
 docs/                     Architecture, engine design, literature, tools, safety
 ```
@@ -79,6 +93,7 @@ docs/                     Architecture, engine design, literature, tools, safety
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | System design and data flow |
 | [`docs/DETECTION_ENGINE.md`](docs/DETECTION_ENGINE.md) | How each detector and the fusion work, with the maths |
 | [`docs/GUI.md`](docs/GUI.md) | The live web console: panels, data flow, design |
+| [`docs/EVALUATION.md`](docs/EVALUATION.md) | The benchmark harness, metrics, and honest results |
 | [`docs/LITERATURE.md`](docs/LITERATURE.md) | The research the design is grounded in |
 | [`docs/TOOLS.md`](docs/TOOLS.md) | Every tool and dependency used, and why |
 | [`docs/SAFETY.md`](docs/SAFETY.md) | The safe-by-default and lab-containment model |

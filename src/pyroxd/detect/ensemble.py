@@ -25,6 +25,7 @@ from .base import Alert
 from .entropy import EntropyDetector
 from .ewma import EWMAControlChart
 from .halfspace_trees import HalfSpaceTrees
+from .incidents import IncidentTracker
 
 
 class _StreamingMinMax:
@@ -84,12 +85,38 @@ class EngineConfig:
     # never flagged). Without this the first unusual-but-benign flows, judged
     # against an empty baseline, would fire spuriously.
     warmup: int = 200
+    # Alerts separated by less than this many seconds are correlated into one
+    # incident (see pyroxd.detect.incidents).
+    incident_gap: float = 2.0
     # Per-detector fusion weights. Left equal by default: the noisy-OR fusion
     # already lets any single confident detector raise the alarm, so capping a
     # detector's weight would only blind the engine to attacks only it sees
     # (e.g. a C2 beacon, which shows up almost solely in destination-IP
     # entropy). Override to bias the ensemble for a specific deployment.
     weights: dict | None = None
+
+    def to_dict(self) -> dict:
+        from dataclasses import asdict
+        return asdict(self)
+
+    def save(self, path) -> None:
+        """Persist the operating point to a JSON file."""
+        import json
+        from pathlib import Path
+        Path(path).write_text(json.dumps(self.to_dict(), indent=2))
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "EngineConfig":
+        # Accept only known fields so an unrelated JSON cannot inject attributes.
+        known = {f for f in cls.__dataclass_fields__}
+        return cls(**{k: v for k, v in d.items() if k in known})
+
+    @classmethod
+    def load(cls, path) -> "EngineConfig":
+        """Load an operating point previously written by :meth:`save`."""
+        import json
+        from pathlib import Path
+        return cls.from_dict(json.loads(Path(path).read_text()))
 
 
 class DetectionEngine:
@@ -118,6 +145,7 @@ class DetectionEngine:
             "entropy_dstip": 1.0,
         }
         self._recent: deque[Alert] = deque(maxlen=512)
+        self._incidents = IncidentTracker(gap_seconds=self.cfg.incident_gap)
         self._processed = 0
 
     def process(self, flow: FlowRecord) -> Alert:
@@ -152,6 +180,8 @@ class DetectionEngine:
             label=flow.label,
         )
         self._recent.append(alert)
+        if alert.is_anomaly:
+            self._incidents.observe(alert)
         return alert
 
     def _explain(self, x: np.ndarray, k: int = 3) -> list[tuple[str, float]]:
@@ -163,6 +193,10 @@ class DetectionEngine:
     @property
     def recent(self) -> list[Alert]:
         return list(self._recent)
+
+    def incidents(self):
+        """All correlated incidents seen so far (closed + currently open)."""
+        return self._incidents.all_incidents()
 
     def telemetry(self) -> dict:
         """A live snapshot of internal detector state, for the GUI gauges.
@@ -179,4 +213,5 @@ class DetectionEngine:
             "threshold": self.cfg.threshold,
             "entropy_dport": self._ent_port.current_entropy,
             "entropy_dstip": self._ent_dstip.current_entropy,
+            "n_incidents": len(self._incidents.all_incidents()),
         }

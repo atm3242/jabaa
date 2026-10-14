@@ -18,12 +18,16 @@ rather than a big-bang release. This keeps every claim backed by runnable code.
 **Measured:** 0.83 recall across four attack families at 1.2% steady-state FPR
 on the built-in scenario.
 
-## Milestone 2 — Evaluation & robustness
+## Milestone 2 — Evaluation & robustness (DONE, except external corpus)
 
-- [ ] Validate on public labelled flow corpora (CIC-IDS / NSL-KDD lineage)
-- [ ] Alert grouping / incident cooldown to resolve post-attack window bleed
-- [ ] Precision/recall/ROC reporting harness with per-family breakdown
-- [ ] Config file + tunable operating point with documented trade-offs
+- [x] Alert grouping / incident correlation to resolve post-attack window bleed
+      (`pyroxd.detect.incidents`; incident precision 0.91, recall 1.00)
+- [x] Precision/recall/ROC/AP reporting harness with per-family breakdown,
+      pure-numpy metrics (`pyroxd.eval`; `python -m pyroxd eval`)
+- [x] Config persistence + tunable operating point (`EngineConfig.save/load`)
+- [x] Incident count surfaced in the GUI
+- [ ] Validate on public labelled flow corpora (CIC-IDS / NSL-KDD lineage) --
+      needs datasets staged locally + a flow adapter; not faked on synthetic data
 
 ## Milestone 3 — Bespoke GUI (DONE)
 
