@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>pyroXD console</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div id="app">
+    <header>
+      <div>
+        <div class="wordmark"><span class="pyro">pyro</span><span class="xd">XD</span></div>
+        <div class="tagline">real-time anomaly detection console</div>
+      </div>
+      <div class="stat-strip">
+        <div class="livepill" id="livepill"><span class="dot"></span><span id="livetext">connecting</span></div>
+        <div class="stat"><span class="k">flows seen</span><span class="v" id="s-processed">0</span></div>
+        <div class="stat"><span class="k">alerts</span><span class="v ember" id="s-alerts">0</span></div>
+        <div class="stat"><span class="k">threshold</span><span class="v" id="s-threshold">-</span></div>
+        <button class="iconbtn" id="helpbtn" title="Guided walkthrough">?</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="panel" id="p-timeline">
+        <h2>Threat Timeline</h2>
+        <div class="body"><canvas id="timeline"></canvas></div>
+        <div class="legend" id="legend"></div>
+      </section>
+
+      <section class="panel" id="p-detectors">
+        <h2>Detector Consensus</h2>
+        <div class="body" id="detectors"></div>
+      </section>
+
+      <section class="panel" id="p-stream">
+        <h2>Alert Stream</h2>
+        <div class="body">
+          <div class="stream-head"><span>time</span><span>score</span><span>class</span><span>drivers</span></div>
+          <div class="stream-body" id="stream"></div>
+        </div>
+      </section>
+
+      <section class="panel" id="p-entropy">
+        <h2>Distribution Entropy</h2>
+        <div class="body">
+          <div class="gauges">
+            <div class="gauge"><canvas id="g-dport" width="260" height="180"></canvas><span class="label">Dest Port</span></div>
+            <div class="gauge"><canvas id="g-dstip" width="260" height="180"></canvas><span class="label">Dest IP</span></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="help-card">
+      <h3>How to read the pyroXD console</h3>
+      <div class="sub">The engine scores a live flow stream from the self-contained lab. Nothing here touches a real network.</div>
+      <div class="step"><div class="num">1</div><div class="txt"><h4>Threat Timeline</h4><p>Each flow's fused anomaly score (0-1) scrolls right to left. The dashed line is the alert threshold; points above it are flagged and coloured by attack family. The quiet green band is normal traffic.</p></div></div>
+      <div class="step"><div class="num">2</div><div class="txt"><h4>Detector Consensus</h4><p>Four independent detectors each give an opinion on the latest flow. Half-Space Trees catch odd feature combinations, EWMA catches volume spikes, and the two entropy detectors catch scans and floods. An alert fires when any credible detector is confident.</p></div></div>
+      <div class="step"><div class="num">3</div><div class="txt"><h4>Distribution Entropy</h4><p>Live Shannon entropy of destination ports and destination IPs over a sliding window. A sudden collapse or spike is the fingerprint of a scan, flood, or beacon.</p></div></div>
+      <div class="step"><div class="num">4</div><div class="txt"><h4>Alert Stream</h4><p>Every flagged flow, newest on top, with the detectors and features that drove it. Click a row to inspect the full breakdown.</p></div></div>
+      <button class="close" id="helpclose">Got it</button>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

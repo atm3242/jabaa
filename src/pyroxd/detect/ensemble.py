@@ -163,3 +163,20 @@ class DetectionEngine:
     @property
     def recent(self) -> list[Alert]:
         return list(self._recent)
+
+    def telemetry(self) -> dict:
+        """A live snapshot of internal detector state, for the GUI gauges.
+
+        Exposes the two entropy detectors' current sliding-window entropy (a
+        value the point-wise detectors do not surface), plus how far through
+        warmup the engine is. Pure read of already-computed state; cheap to
+        call once per processed flow.
+        """
+        return {
+            "processed": self._processed,
+            "warmup": self.cfg.warmup,
+            "warming_up": self._processed <= self.cfg.warmup,
+            "threshold": self.cfg.threshold,
+            "entropy_dport": self._ent_port.current_entropy,
+            "entropy_dstip": self._ent_dstip.current_entropy,
+        }

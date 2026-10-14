@@ -33,6 +33,11 @@ service, and no telemetry**.
 - Measured quality on the built-in labelled scenario: **0.83 recall across all
   four attack families with a 1.2% steady-state false-positive rate** (see the
   e2e test output).
+- **Bespoke live web console** (`python -m pyroxd serve`) — a hand-designed
+  SOC-style GUI with a real-time threat timeline, animated detector-consensus
+  bars, live entropy gauges, an explained alert stream, and a guided help
+  walkthrough. Pure stdlib backend + framework-free front end. See
+  [`docs/GUI.md`](docs/GUI.md).
 
 ## Quick start
 
@@ -42,6 +47,9 @@ python -m pip install numpy
 
 # Run the real-time detection demo over the synthetic lab:
 PYTHONPATH=src python -m pyroxd demo
+
+# Launch the bespoke web console, then open http://127.0.0.1:8787
+PYTHONPATH=src python -m pyroxd serve
 
 # Run the test suite (no pytest required):
 PYTHONPATH=src python tests/test_detectors_unit.py
@@ -70,6 +78,7 @@ docs/                     Architecture, engine design, literature, tools, safety
 |-----|---------|
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | System design and data flow |
 | [`docs/DETECTION_ENGINE.md`](docs/DETECTION_ENGINE.md) | How each detector and the fusion work, with the maths |
+| [`docs/GUI.md`](docs/GUI.md) | The live web console: panels, data flow, design |
 | [`docs/LITERATURE.md`](docs/LITERATURE.md) | The research the design is grounded in |
 | [`docs/TOOLS.md`](docs/TOOLS.md) | Every tool and dependency used, and why |
 | [`docs/SAFETY.md`](docs/SAFETY.md) | The safe-by-default and lab-containment model |

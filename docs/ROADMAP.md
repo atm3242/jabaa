@@ -25,13 +25,15 @@ on the built-in scenario.
 - [ ] Precision/recall/ROC reporting harness with per-family breakdown
 - [ ] Config file + tunable operating point with documented trade-offs
 
-## Milestone 3 — Bespoke GUI
+## Milestone 3 — Bespoke GUI (DONE)
 
-- [ ] Local web backend driving `DetectionEngine` over a flow stream
-- [ ] Real-time visualisations: live score timeline, per-detector contribution
-      breakdown, entropy gauges, flow table with drill-down
-- [ ] A custom, non-template visual design (no stock framework defaults)
-- [ ] A guided, click-through "help / walkthrough" of every view and task
+- [x] Local web backend driving `DetectionEngine` over a flow stream (pure
+      stdlib `http.server`, Server-Sent Events; `python -m pyroxd serve`)
+- [x] Real-time visualisations: live score timeline, per-detector contribution
+      breakdown, entropy gauges, alert stream with drill-down
+- [x] A custom, non-template visual design (no stock framework defaults)
+- [x] A guided, click-through "help / walkthrough" of every view
+- [ ] Remaining: live flow table filtering, incident grouping view, theming UI
 
 ## Milestone 4 — Live capture (passive, opt-in)
 

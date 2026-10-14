@@ -70,8 +70,20 @@ def main(argv: list[str] | None = None) -> int:
     d = sub.add_parser("demo", help="run the built-in detection demo")
     d.add_argument("--seed", type=int, default=1, help="scenario RNG seed")
     d.set_defaults(func=cmd_demo)
+
+    s = sub.add_parser("serve", help="launch the pyroXD web GUI")
+    s.add_argument("--host", default="127.0.0.1")
+    s.add_argument("--port", type=int, default=8787)
+    s.set_defaults(func=cmd_serve)
+
     args = parser.parse_args(argv)
     return args.func(args)
+
+
+def cmd_serve(args: argparse.Namespace) -> int:
+    from .gui.server import serve
+    serve(host=args.host, port=args.port)
+    return 0
 
 
 if __name__ == "__main__":
